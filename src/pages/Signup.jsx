@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import loginImage from '../assets/image/login.svg';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { createUser, loginWithGoogle } from '../redux/features/user/userSlice';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Signup = () => {
   const { handleSubmit, register, control } = useForm();
@@ -9,6 +12,9 @@ const Signup = () => {
   const confirmPassword = useWatch({ control, name: 'confirmPassword' });
   const navigate = useNavigate();
   const [disabled, setDisabled] = useState(true);
+  const dispatch = useDispatch();
+  const { isLoading, isError, error, email } = useSelector((state) => state.userSlice);
+
 
   useEffect(() => {
     if (
@@ -24,17 +30,35 @@ const Signup = () => {
     }
   }, [password, confirmPassword]);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+
+
+  }, [isError, error]);
+
+  useEffect(() => {
+    if (!isLoading && email) {
+      navigate('/')
+    }
+  }, [isLoading, email])
+
+
+
   const onSubmit = ({ name, email, password }) => {
-    // Email Password signup
-    console.log(name, email, password);
+    dispatch(createUser({
+      email, password, name
+    }))
   };
 
   const handleGoogleLogin = () => {
     // Google Login
+    dispatch(loginWithGoogle());
   };
-
   return (
     <div className="flex max-w-7xl mx-auto h-screen items-center">
+      <Toaster></Toaster>
       <div className="w-1/2">
         <img src={loginImage} className="h-full w-full" alt="" />
       </div>
@@ -84,7 +108,7 @@ const Signup = () => {
                 className="btn btn-primary w-full disabled:bg-gray-300 disabled:cursor-not-allowed"
                 disabled={disabled}
               >
-                Sign up
+                {isLoading ? 'Loading...' : 'Sign up'}
               </button>
             </div>
             <div>

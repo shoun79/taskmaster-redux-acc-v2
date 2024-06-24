@@ -1,10 +1,11 @@
-import { useSelector } from 'react-redux';
+
 import TaskCard from '../components/tasks/TaskCard';
+import { useGetArchiveTasksQuery } from '../redux/features/tasks/tasksapi';
 
 const Archive = () => {
-  const { tasks } = useSelector((state) => state.tasksSlice);
 
-  const archiveTasks = tasks.filter((item) => item.status == 'archive');
+  const { data: archiveTasks } = useGetArchiveTasksQuery(undefined, { pollingInterval: 30000, refetchOnMountOrArgChange: true, refetchOnReconnect: true });
+
 
   return (
     <div className="p-10">
@@ -13,7 +14,7 @@ const Archive = () => {
       </div>
       <div className="grid grid-cols-4 gap-5">
         {archiveTasks?.map((item) => (
-          <TaskCard key={item.id} task={item} />
+          <TaskCard key={item._id} task={item} />
         ))}
       </div>
     </div>
